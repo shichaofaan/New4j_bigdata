@@ -20,9 +20,9 @@ sa-token:
 spring:
   redis:
     #腾讯云内网地址
-    host: 101.43.182.188
+    host: ***
     port: 6379
-    password: 395394
+    password: ***
     database: 0
     timeout: 60000
     lettuce:
@@ -70,10 +70,10 @@ spring:
   #mongodb的路径
   data:
     mongodb:
-      host: 101.43.182.188   #同127.0.0.1
+      host: **** #同127.0.0.1
       port: 27017
       username: 'admin'
-      password: '123456'
+      password: '***'
       database: doctor   #指定连接的数据库
 
 #mybatis plus 逻辑删除 1代表删除 0代表不删除
@@ -90,6 +90,6 @@ mybatis:
 
 #qq邮箱发送配置
 email:
-  number: "573877411@qq.com"
-  key: "rabhhvpsgjlqbcbc"
+  number: "*******"
+  key: "*******"
 
