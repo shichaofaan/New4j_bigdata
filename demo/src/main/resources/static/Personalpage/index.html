@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>个人页面</title>
+	<meta name="description" content="Bako - Personal Portfolio & Resume HTML Template">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link rel="shortcut icon" href="../img/logo.jpg" type="text/plain">
+	<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" media="all">
+	<link rel="stylesheet" href="css/all.min.css" type="text/css" media="all">
+	<link rel="stylesheet" href="css/simple-line-icons.css" type="text/css" media="all">
+	<link rel="stylesheet" href="css/slick.css" type="text/css" media="all">
+	<link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css" type="text/css" media="all">
+	<link rel="stylesheet" href="css/style.css" type="text/css" media="all">
+	<script type="text/javascript" src="js/echarts.min.js"></script>
+	<script src="../js/jquery.min.js"></script>
+
+</head>
+
+<script type="text/javascript">
+
+	/*用户点击页面的时候进行信息请求*/
+	window.onload=function(){
+		$.ajax({
+			type: "post",  //请求方式
+			url: "/Finduserinformation/user",  //请求路径：页面/方法名字
+			success: function (dat) {
+
+				document.getElementById("name").value=dat.userName;
+				document.getElementById("email").value=dat.userEmil;
+				document.getElementById("number").value=dat.userNumber;
+				document.getElementById("password").value=dat.userPassword;
+				document.getElementById("createtime").value=dat.createTime;
+
+				if(dat.isdelete===1)
+				{
+					document.getElementById("isdelete").value="是";
+				}else{
+					document.getElementById("isdelete").value="否";
+				}
+				if(dat.power===0)
+				{
+					document.getElementById("power").value="普通用户";
+				}else{
+					document.getElementById("power").value="管理员";
+				}
+			},
+			error: function () {
+				window.alert("空指针异常.网络原因.");
+			}
+		})
+
+
+		/*雷达图*/
+		var dom = document.getElementById('container');
+		var myChart = echarts.init(dom, null, {
+			renderer: 'canvas',
+			useDirtyRect: false
+		});
+		var app = {};
+
+		var option;
+
+		option = {
+			title: {
+				text: '健康雷达图'
+			},
+			legend: {
+				data: ['min', 'max', "自己"]
+			},
+			radar: {
+				// shape: 'circle',
+				indicator: [
+					{name: 'BMI', max: 30},
+					{name: '心率', max: 120},
+					{name: '血压', max: 150},
+					{name: '血糖', max: 15},
+					{name: '血脂', max: 8}
+				]
+			},
+			series: [
+				{
+					name: 'Budget vs spending',
+					type: 'radar',
+					data: [
+						{
+							value: [18, 60, 85, 5, 4],
+							name: 'min'
+						},
+						{
+							value: [27, 100, 120, 11.1, 6],
+							name: 'max'
+						}
+					]
+				}
+			]
+		};
+
+		if (option && typeof option === 'object') {
+			myChart.setOption(option);
+		}
+
+		window.addEventListener('resize', myChart.resize);
+
+		document.getElementById('text').value="默认这里得信息是没有的.当你使用健康预测时.会出来建议信息.并且下方的雷达图也会进行检测";
+	}
+
+	$(function () {
+		$("#submit").click(function () {
+			$.ajax({
+				type: "post",  //请求方式
+				url: "/Finduserinformation/senduserMsg",  //请求路径：页面/方法名字
+				data: {"height": document.getElementById("InputHeight").value,
+					   "weight": document.getElementById("InputWeight").value,
+					   "hearrate": document.getElementById("InputHeartRate").value,
+					   "bloodpressure": document.getElementById("InputBloodPressure").value,
+					   "bloodsugar": document.getElementById("InputBloodSugar").value,
+					   "bloodlipids": document.getElementById("InputBloodLipids").value,
+						"name": document.getElementById("name").value },     //参数
+				dataType: 'json',
+				success: function (dat) {
+
+					/*赋值*/
+					document.getElementById('text').value=dat.msg;
+
+					var value = document.getElementById("InputHeight").value;
+					var value1 = document.getElementById("InputWeight").value;
+					var value2 = document.getElementById("InputHeartRate").value;
+					var value3 = document.getElementById("InputBloodPressure").value;
+					var value4= document.getElementById("InputBloodSugar").value;
+					var value5 = document.getElementById("InputBloodLipids").value;
+
+					var BMI=parseFloat(value1)/parseFloat(parseFloat(value)*parseFloat(value)/10000);
+
+					/*雷达图*/
+					var dom = document.getElementById('container');
+					var myChart = echarts.init(dom, null, {
+						renderer: 'canvas',
+						useDirtyRect: false
+					});
+					var app = {};
+
+					var option;
+
+					option = {
+						title: {
+							text: '健康雷达图'
+						},
+						legend: {
+							data: ['min', 'max', "自己"]
+						},
+						radar: {
+							// shape: 'circle',
+							indicator: [
+								{name: 'BMI', max: 30},
+								{name: '心率', max: 120},
+								{name: '血压', max: 150},
+								{name: '血糖', max: 15},
+								{name: '血脂', max: 8}
+							]
+						},
+						series: [
+							{
+								name: 'Budget vs spending',
+								type: 'radar',
+								data: [
+									{
+										value: [18, 60, 85, 5, 4],
+										name: 'min'
+									},
+									{
+										value: [27, 100, 120, 11.1, 6],
+										name: 'max'
+									},
+									{
+										value: [BMI, value2, value3, value4, value5],
+										name: '自己'
+									}
+								]
+							}
+						]
+					};
+
+					if (option && typeof option === 'object') {
+						myChart.setOption(option);
+					}
+
+					window.addEventListener('resize', myChart.resize);
+
+				},
+				error: function () {
+					alert("网络繁忙,发送失败!");
+				}
+			});
+		});
+	});
+
+</script>
+
+<body>
+
+<div id="preloader">
+	<div class="outer">
+		<div class="spinner">
+			<div class="dot1"></div>
+			<div class="dot2"></div>
+		</div>
+	</div>
+</div>
+
+<div class="site-wrapper">
+
+	<div class="mobile-header py-2 px-3 mt-4">
+		<button class="menu-icon mr-2">
+			<span></span>
+			<span></span>
+			<span></span>
+		</button>
+		<a href="index.html" class="logo"><img src="images/logo.png" alt="Bako Doe" /></a>
+	</div>
+
+	<header class="left float-left shadow-dark" id="header">
+
+		<div class="header-inner d-flex align-items-start flex-column">
+			<a class="site-title dot mt-3">健康第一位</a>
+			<span class="site-slogan">一天一苹果.医生远离我</span>
+
+			<nav>
+				<ul class="vertical-menu scrollspy">
+					<li><a href="#about"><i class="icon-user"></i>我的信息</a></li>
+					<li><a href="#resume"><i class="icon-graduation"></i>健康检测</a></li>
+					<li><a href="#clients"><i class="icon-screen-desktop"></i>健康建议</a></li>
+					<li><a href="#contact"><i class="icon-notebook"></i>健康预测</a></li>
+					<li><a href="#dayhealth"><i class="icon-calculator"></i>每日关心</a></li>
+					<li><a href="#HealthRadar"><i class="icon-share"></i>健康雷达图</a></li>
+				</ul>
+			</nav>
+
+			<div class="footer mt-auto">
+
+				<ul class="social-icons list-inline">
+					<h5>联系我: <li class="list-inline-item"><a href="https://mail.qq.com/"><i class="fab fa-youtube"></i></a></li></h5>
+				</ul>
+
+				<span class="copyright">573877411@qq.com</span>
+				<br/><br />
+
+				<span class="copyright">健康生活每一天......</span>
+			</div>
+		</div>
+	</header>
+
+	<main class="content float-right">
+		<section id="about" class="shadow-blue white-bg padding">
+			<h3 class="section-title">关于你</h3>
+			<div class="spacer" data-height="80"></div>
+
+			<div class="row">
+				<div class="col-md-3">
+					<img src="../img/Patient.jpg" alt="about" />
+				</div>
+				<div class="col-md-9">
+					<h2 class="mt-4 mt-md-0 mb-4">个人介绍</h2>
+					<p class="mb-0">我们可能从来没有见过.但是相信未来的某一天.我们可能会在咖啡馆相遇.在阳光灿烂的午后...</p>
+					<div class="row my-4">
+						<div class="col-md-6">
+							<p class="mb-2">名字: <span class="text-dark"><input class="col-md-6" id="name" value="******" readonly></span></p>
+							<p class="mb-0">邮箱: <span class="text-dark"><input class="col-md-6" id="email" value="******" readonly></span></p>
+						</div>
+						<div class="col-md-6 ">
+							<p class="mb-2">账号: <span class="text-dark"><input class="col-md-6" id="number" value="******" readonly></span></p>
+							<p class="mb-md-2">密码: <span class="text-dark"><input class="col-md-6" id="password" value="******" readonly></span></p>
+						</div>
+						<div class="col-md-6">
+							<p class="mb-md-2">禁用: <span class="text-dark"><input class="col-md-6" id="isdelete" value="******" readonly></span></p>
+							<p class="mb-md-2">权限: <span class="text-dark"><input class="col-md-6" id="power" value="******" readonly></span></p>
+						</div>
+						<div class="col-md-10 ">
+							<p class="mb-2">创建时间: <span class="text-dark"><input class="col-md-6" id="createtime" value="******" readonly></span></p>
+						</div>
+					</div>
+					<a href="../DoctorPage/index.html" class="btn btn-default mr-3"><i class="icon-cloud-download"></i>名医预约</a>
+					<a href="../UserPage/index.html" class="btn btn-alt mt-2 mt-md-0 mt-xs-2"><i class="icon-envelope"></i>智能咨询</a>
+				</div>
+			</div>
+		</section>
+
+		<section id="resume" class="shadow-blue white-bg padding">
+			<h3 class="section-title">健康检测</h3>
+			<div class="spacer" data-height="80"></div>
+
+			<div class="timeline">
+				<div class="entry">
+					<div class="title">
+						<span>前天</span>
+					</div>
+					<div class="body">
+						<h4 class="mt-0">注意当前心跳</h4>
+						<p>少做剧烈运动.多和水.保持良好作息.</p>
+					</div>
+				</div>
+				<div class="entry">
+					<div class="title">
+						<span>昨天</span>
+					</div>
+					<div class="body">
+						<h4 class="mt-0">血压略高</h4>
+						<p>注意饮食健康.建议去医院检查血压.</p>
+					</div>
+				</div>
+				<div class="entry">
+					<div class="title">
+						<span>今天</span>
+					</div>
+					<div class="body">
+						<h4 class="mt-0">今天热量摄入太高</h4>
+						<p>做点运动.比如.跑步.游泳.</p>
+					</div>
+				</div>
+				<span class="timeline-line"></span>
+			</div>
+		</section>
+
+		<section id="clients" class="shadow-dark background-blue color-white padding-50">
+			<h3 class="section-title">健康建议</h3>
+
+			<h2 class="d-none">Clients</h2>
+
+
+			<div class="clients-wrapper row">
+				
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">跑步运动</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">健康第一</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">用心护理</a>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">热情服务</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">心态健康</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-3">
+
+					<div class="client-item">
+						<div class="inner">
+							<a style="color: #ff73b3">关爱他人</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section id="contact" class="shadow-blue white-bg padding">
+			<h3 class="section-title">获取个人健康信息(模拟获取app端每日健康信息)</h3>
+			<div class="spacer" data-height="80"></div>
+
+			<div class="row">
+
+				<div class="col-md-8">
+
+					<form id="contact-form" class="contact-form" method="post" action="#">
+						
+						<div class="messages"></div>
+						
+						<div class="row">
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" name="InputHeight" id="InputHeight" placeholder="身高(cm)" required="required" data-error="Height is required">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+							
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" id="InputWeight" name="InputWeight" placeholder="体重(kg)" required="required" data-error="Weight is required.">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" id="InputHeartRate" name="InputHeartRate" placeholder="心率(次/分)" required="required" data-error="HeartRate is required.">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" name="InputBloodPressure" id="InputBloodPressure" placeholder="血压(mmHg)" required="required" data-error="BloodPressure is required.">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" name="InputBloodSugar" id="InputBloodSugar" placeholder="血糖(mmol/L)" required="required" data-error="BloodSugar is required.">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+
+							<div class="column col-md-6">
+
+								<div class="form-group">
+									<input type="text" class="form-control" name="InputBloodLipids" id="InputBloodLipids" placeholder="血脂(mmol/L)" required="required" data-error="BloodLipids is required.">
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+
+							<div class="column col-md-12">
+
+								<div class="form-group">
+									<textarea name="InputMessage" class="form-control" rows="5" id="InputSymptoms"  placeholder="补充其他症状(没有写无)" required="required" data-error="Symptoms is required."></textarea>
+									<div class="help-block with-errors"></div>
+								</div>
+							</div>
+						</div>
+
+
+						<button type="submit" name="submit" id="submit" value="Submit" class="btn btn-default"><i class="icon-paper-plane"></i>检测</button><!-- Send Button -->
+
+					</form>
+
+				</div>
+
+			</div>
+
+		</section>
+
+
+		<section id="dayhealth" class="shadow-blue white-bg padding">
+			<h3 class="section-title">每日关心</h3>
+			</br></br>
+			<div  id="sec" style="height: 500px" class="row">
+				<div class="column col-md-12">
+					<div class="form-group">
+						<textarea type="text"  style="color: #3c97bf" class="form-control"  rows="15" id="text"  readonly></textarea>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section id="HealthRadar" class="shadow-blue white-bg padding">
+			<div  id="container" style="height: 500px"></div>
+		</section>
+
+	</main>
+
+</div>
+
+<a href="javascript:" id="return-to-top"><i class="fa fa-chevron-up"></i></a>
+
+<script src="js/jquery-1.12.3.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.waypoints.min.js"></script>
+<script src="js/jquery.counterup.min.js"></script>
+<script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+<script src="js/isotope.pkgd.min.js"></script>
+<script src="js/infinite-scroll.min.js"></script>
+<script src="js/imagesloaded.pkgd.min.js"></script>
+<script src="js/slick.min.js"></script>
+<script src="js/contact.js"></script>
+<script src="js/validator.js"></script>
+<script src="js/custom.js"></script>
+
+</body>
+</html>
