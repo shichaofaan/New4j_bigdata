@@ -9,7 +9,7 @@
 
 #### 安装教程
 
-1.  git clone https://gitee.com/mr-shisss/big-data-project.git
+1.  git clone [https://gitee.com/mr-shisss/big-data-project.git](https://github.com/shichaofaan/New4j_bigdata.git)
 2.  拉取下来之后将配置文件进行更改
 3.  所有的文件地址进行更改
 
